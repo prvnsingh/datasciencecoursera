@@ -83,6 +83,14 @@ confusionMatrix(predict(fit,newdata = validing),validing$classe)
 
 ```
 
+### Out Sample error
+ Out of sample error is 0.001189465
+```{r,echo=TRUE}
+
+out_of_sample_acc <- sum(valid==validing$classe)/nrow(validing)
+out_of_sample_error <- 1-out_of_sample_acc
+```
+
 
 ###Prediction
 ```{r,echo=TRUE}
