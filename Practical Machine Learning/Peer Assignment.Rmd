@@ -1,0 +1,107 @@
+---
+title: 'Practical Machine Learning : Peer-graded Assignment'
+author: "Praveen Singh"
+date: "October 23, 2017"
+output: html_document
+---
+#Practical Machine Learning : Peer-graded Assignment
+
+
+##Introduction
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement - a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways.
+More information is available from the website here: http://groupware.les.inf.puc-rio.br/har
+
+##Data used
+The training data for this project are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+
+The test data are available here:
+
+https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+
+##Objective
+The goal of is to predict the manner in which they did the exercise. There is "classe" variable in the training set need to be predicted.
+
+###Setting Working Directory
+```{r,echo=TRUE}
+setwd("~/GitHub/datasciencecoursera/Practical Machine Learning")
+
+```
+
+###Loading required Libraries
+```{r,echo=TRUE}
+library(caret)
+library(randomForest)
+```
+
+###Setting Seeds
+```{r,echo=TRUE}
+set.seed(12345) #for reproducible prediction
+```
+
+###Getting And Cleaning Data
+The Data is downloaded in working Directory. It is loaded to R environment.
+The training dataset contain many variables containg NA's which will create problem in modelling, So they are needed to be removed or imputed.
+Moreover variables with zero variance should be removed.
+```{r,echo=TRUE}
+#Getting the Data
+train <- read.csv("pml-training.csv")
+
+#Cleaning the Data
+#Removing index column
+train <- train[,-1]
+
+#Removing the zero variance predictors
+nsv <- nearZeroVar(train[-160],saveMetrics = TRUE)
+train <- train[,!nsv$nzv]
+
+#Removing predictors containing large number of NA's
+data <- colSums(!is.na(train[,-ncol(train)]))>=0.6*nrow(train)
+train<-train[,data]
+```
+
+
+###Fitting Prediction Model
+Random Forest method is used for modelling the training data set. There is no need of further cross-validation as "rf" take care of that.
+Actually there are 57 variables and randomforest will take large time in compilation, therefore do.trace is used. This might increase the console output but it is much faster.
+```{r,echo=TRUE}
+#creating Data partition for validation
+intrain <- createDataPartition(y= train$classe,p = 0.7,list = FALSE)
+training <- train[intrain,]
+validing <- train[-intrain,]
+
+#fitting Random Forest
+fit <- randomForest(classe~.,data = training, importance = TRUE, do.trace  = TRUE)
+
+#validating Model
+valid<- predict(fit,newdata = validing)
+confusionMatrix(predict(fit,newdata = validing),validing$classe)
+
+
+```
+
+
+###Prediction
+```{r,echo=TRUE}
+#loading test data set
+test <- read.csv("pml-testing.csv")
+
+#cleaning test data set
+testing <-test[,-1]
+testing <-testing[,!nsv$nzv]
+testing <-testing[,data]
+testing <- testing[,-ncol(testing)]
+
+#coercing
+testing<- rbind(training[1,-ncol(training)],testing)
+testing<-testing[-1,]
+
+#predicting
+forcast <- predict(fit,newdata = testing)
+
+```
+
+Finally, We used 57 predictor to forecast 20 test observation.
