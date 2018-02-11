@@ -1,0 +1,37 @@
+Shiny Application Pitch
+========================================================
+author: PRAVEEN SINGH
+date: 11-FEB-2018
+autosize: true
+
+
+What's is the shinny application?
+========================================================
+  
+- Dataset used is "airquality"
+- Variation of solar radiation with respect to temperature is depicted in graph
+- Linear reggression is used for prediction
+- Solar radiation is predicted for a given user input of month and temperature
+
+Dataset
+========================================================
+
+```{r}
+summary(airquality)
+```
+
+Slide With Plot
+========================================================
+
+```{r, echo=FALSE}
+plot(airquality)
+```
+
+External Links
+=========================================================
+
+The shinny application is hosted at
+ <https://prvns.shinyapps.io/shinyapp/>.
+ 
+ The github repository containing related files :
+ <https://github.com/prvnsingh/datasciencecoursera/tree/master/Developing%20Data%20Products>
